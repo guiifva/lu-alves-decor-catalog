@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16
+    container_name: decor-db
+    environment:
+      POSTGRES_DB: decor_manager
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d decor_manager"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: decor-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://db:5432/decor_manager
+      SPRING_R2DBC_USERNAME: user
+      SPRING_R2DBC_PASSWORD: password
+      SPRING_FLYWAY_URL: jdbc:postgresql://db:5432/decor_manager
+      SPRING_FLYWAY_USER: user
+      SPRING_FLYWAY_PASSWORD: password
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
