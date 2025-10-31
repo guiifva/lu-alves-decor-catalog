@@ -2,9 +2,9 @@ package nocta.lualvesdecorcatalog.controller
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
-import nocta.lualvesdecorcatalog.controller.dto.ItemRequest
+import nocta.lualvesdecorcatalog.controller.dto.ThemeItemRequest
 import nocta.lualvesdecorcatalog.controller.dto.ThemeRequest
-import nocta.lualvesdecorcatalog.core.entity.Item
+import nocta.lualvesdecorcatalog.core.entity.ThemeItem
 import nocta.lualvesdecorcatalog.core.entity.Theme
 import nocta.lualvesdecorcatalog.core.service.ThemeService
 import org.junit.jupiter.api.Test
@@ -29,7 +29,7 @@ class ThemeControllerTest {
             name = "Festa Junina",
             description = "Decoração para festa junina",
             items = listOf(
-                ItemRequest(
+                ThemeItemRequest(
                     name = "Bandeirinhas",
                     quantity = 100,
                     description = "Bandeirinhas coloridas"
@@ -42,7 +42,7 @@ class ThemeControllerTest {
             name = "Festa Junina",
             description = "Decoração para festa junina",
             items = listOf(
-                Item(
+                ThemeItem(
                     name = "Bandeirinhas",
                     quantity = 100,
                     description = "Bandeirinhas coloridas"

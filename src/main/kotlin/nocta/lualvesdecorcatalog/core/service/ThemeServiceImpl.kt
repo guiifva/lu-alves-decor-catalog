@@ -2,7 +2,7 @@ package nocta.lualvesdecorcatalog.core.service
 
 import kotlinx.coroutines.flow.toList
 import nocta.lualvesdecorcatalog.core.entity.Theme
-import nocta.lualvesdecorcatalog.repository.ItemRepository
+import nocta.lualvesdecorcatalog.repository.ThemeItemRepository
 import nocta.lualvesdecorcatalog.repository.ThemeRepository
 import nocta.lualvesdecorcatalog.repository.mapper.toEntity
 import nocta.lualvesdecorcatalog.repository.mapper.toModel
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ThemeServiceImpl(
     private val themeRepository: ThemeRepository,
-    private val itemRepository: ItemRepository
+    private val themeItemRepository: ThemeItemRepository
 ) : ThemeService {
     @Transactional
     override suspend fun create(theme: Theme): Theme {
@@ -23,7 +23,7 @@ class ThemeServiceImpl(
 
         val savedItems = theme.items
             .map { it.toEntity(themeId) }
-            .let { itemRepository.saveAll(it).toList() }
+            .let { themeItemRepository.saveAll(it).toList() }
 
         return savedTheme.toModel(savedItems.map { it.toModel() })
     }

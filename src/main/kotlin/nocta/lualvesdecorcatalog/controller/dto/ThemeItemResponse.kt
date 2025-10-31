@@ -1,14 +1,14 @@
 package nocta.lualvesdecorcatalog.controller.dto
 
-import nocta.lualvesdecorcatalog.core.entity.Item
+import nocta.lualvesdecorcatalog.core.entity.ThemeItem
 
-data class ItemResponse(
+data class ThemeItemResponse(
     val name: String,
     val quantity: Int,
     val description: String?
 ) {
     companion object {
-        fun from(item: Item) = ItemResponse(
+        fun from(item: ThemeItem) = ThemeItemResponse(
             name = item.name,
             quantity = item.quantity,
             description = item.description

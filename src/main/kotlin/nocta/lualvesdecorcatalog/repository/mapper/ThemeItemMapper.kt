@@ -1,16 +1,16 @@
 package nocta.lualvesdecorcatalog.repository.mapper
 
-import nocta.lualvesdecorcatalog.core.entity.Item
-import nocta.lualvesdecorcatalog.repository.entity.ItemEntity
+import nocta.lualvesdecorcatalog.core.entity.ThemeItem
+import nocta.lualvesdecorcatalog.repository.entity.ThemeItemEntity
 
-fun Item.toEntity(themeId: Long) = ItemEntity(
+fun ThemeItem.toEntity(themeId: Long) = ThemeItemEntity(
     name = name,
     quantity = quantity,
     description = description,
     themeId = themeId
 )
 
-fun ItemEntity.toModel() = Item(
+fun ThemeItemEntity.toModel() = ThemeItem(
     name = name,
     quantity = quantity,
     description = description
