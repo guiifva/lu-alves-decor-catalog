@@ -2,16 +2,16 @@ package nocta.lualvesdecorcatalog.controller.dto
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import nocta.lualvesdecorcatalog.core.entity.Item
+import nocta.lualvesdecorcatalog.core.entity.ThemeItem
 
-data class ItemRequest(
+data class ThemeItemRequest(
     @field:NotBlank
     val name: String,
     @field:NotNull
     val quantity: Int,
     val description: String?
 ) {
-    fun toItem() = Item(
+    fun toItem() = ThemeItem(
         name = name,
         quantity = quantity,
         description = description

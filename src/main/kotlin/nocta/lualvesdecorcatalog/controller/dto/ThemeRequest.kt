@@ -9,7 +9,7 @@ data class ThemeRequest(
     val name: String,
     val description: String?,
     @field:Valid
-    val items: List<ItemRequest>
+    val items: List<ThemeItemRequest>
 ) {
     fun toTheme() = Theme(
         name = name,
