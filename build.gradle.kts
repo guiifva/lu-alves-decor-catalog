@@ -14,7 +14,7 @@ description = "lu-alves-decor-catalog"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(24)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 
 }
@@ -24,7 +24,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.flywaydb:flyway-core")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -32,11 +31,14 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:$springdocVersion")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
+    testImplementation("org.flywaydb:flyway-core")
+    testImplementation("org.flywaydb:flyway-database-postgresql")
     testImplementation("com.h2database:h2")
     testImplementation("io.r2dbc:r2dbc-h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
