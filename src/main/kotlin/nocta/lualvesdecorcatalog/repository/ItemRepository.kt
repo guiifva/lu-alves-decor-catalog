@@ -4,6 +4,6 @@ import java.util.UUID
 import nocta.lualvesdecorcatalog.repository.entity.ItemEntity
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
-interface ItemRepository : CoroutineCrudRepository<ItemEntity, UUID> {
+interface ItemRepository : CoroutineCrudRepository<ItemEntity, UUID>, ItemRepositoryCustom {
     suspend fun existsBySku(sku: String): Boolean
 }

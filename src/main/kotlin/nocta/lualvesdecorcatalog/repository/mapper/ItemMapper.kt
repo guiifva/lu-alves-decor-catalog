@@ -2,22 +2,22 @@ package nocta.lualvesdecorcatalog.repository.mapper
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import nocta.lualvesdecorcatalog.core.entity.DecorItem
-import nocta.lualvesdecorcatalog.core.entity.DecorItemCategory
-import nocta.lualvesdecorcatalog.core.entity.DecorItemUnit
-import nocta.lualvesdecorcatalog.repository.entity.DecorItemEntity
+import nocta.lualvesdecorcatalog.core.item.Item
+import nocta.lualvesdecorcatalog.core.item.ItemCategory
+import nocta.lualvesdecorcatalog.core.item.ItemUnit
+import nocta.lualvesdecorcatalog.repository.entity.ItemEntity
 
 private val objectMapper = jacksonObjectMapper()
 private val photoListType = object : TypeReference<List<String>>() {}
 
-fun DecorItemEntity.toDomain(): DecorItem = DecorItem(
-    id = id ?: error("Decor item persisted without identifier."),
+fun ItemEntity.toModel(): Item = Item(
+    id = id,
     sku = sku,
     name = name,
-    category = DecorItemCategory.valueOf(category),
+    category = ItemCategory.valueOf(category),
     description = description,
     quantityAvailable = quantityAvailable,
-    unit = unit?.let { DecorItemUnit.valueOf(it) },
+    unit = unit?.let { ItemUnit.valueOf(it) },
     replacementValue = replacementValue,
     rentalPrice = rentalPrice,
     photos = photos?.let { objectMapper.readValue(it, photoListType) } ?: emptyList(),
@@ -26,7 +26,7 @@ fun DecorItemEntity.toDomain(): DecorItem = DecorItem(
     updatedAt = updatedAt
 )
 
-fun DecorItem.toEntity(): DecorItemEntity = DecorItemEntity(
+fun Item.toEntity(): ItemEntity = ItemEntity(
     id = id,
     sku = sku,
     name = name,

@@ -75,9 +75,9 @@ class ItemControllerTest {
     @Test
     fun `should return 422 when domain validation fails`() {
         val request = CreateItemRequest(
-            name = "A",
+            name = "Panel",
             category = ItemCategory.Panel,
-            quantityAvailable = -1,
+            quantityAvailable = 1,
         )
 
         coEvery { itemService.create(request.toCommand()) } throws DomainValidationException(
@@ -102,7 +102,7 @@ class ItemControllerTest {
             category = ItemCategory.Balloon_Arch,
             quantityAvailable = 1,
             photos = listOf("https://cdn.example.com/items/balloon-arch-pastel.jpg"),
-            unit = ItemUnit.unit,
+            unit = ItemUnit.UNIT,
             replacementValue = BigDecimal("10.00"),
             rentalPrice = BigDecimal("5.00"),
         )
