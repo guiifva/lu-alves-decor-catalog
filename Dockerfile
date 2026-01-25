@@ -1,4 +1,4 @@
-FROM eclipse-temurin:24-jdk AS build
+FROM eclipse-temurin:21-jdk AS build
 
 WORKDIR /workspace
 
@@ -10,10 +10,11 @@ RUN chmod +x gradlew \
     && ./gradlew --no-daemon dependencies || true
 
 COPY . .
-RUN ./gradlew --no-daemon clean bootJar -x test \
+RUN chmod +x gradlew \
+ && ./gradlew --no-daemon clean bootJar -x test \
  && bash -lc 'set -e; JAR=$(ls build/libs/*-SNAPSHOT.jar 2>/dev/null || ls build/libs/*.jar | grep -v plain | head -n1); cp "$JAR" /workspace/app.jar'
 
-FROM eclipse-temurin:24-jre
+FROM eclipse-temurin:21-jre
 
 ENV TZ=Etc/UTC \
     JAVA_OPTS=""

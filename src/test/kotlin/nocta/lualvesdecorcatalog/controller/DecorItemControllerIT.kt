@@ -19,6 +19,7 @@ import java.util.UUID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
+@org.springframework.test.context.ActiveProfiles("test")
 class DecorItemControllerIT @Autowired constructor(
     private val webTestClient: WebTestClient,
     private val decorItemRepository: DecorItemRepository

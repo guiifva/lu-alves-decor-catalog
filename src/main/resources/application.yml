@@ -9,3 +9,6 @@ spring:
     url: ${SPRING_FLYWAY_URL:jdbc:postgresql://127.0.0.1:5432/decor_manager}
     user: ${SPRING_FLYWAY_USER:user}
     password: ${SPRING_FLYWAY_PASSWORD:password}
+    placeholders:
+      jsonType: JSONB
+

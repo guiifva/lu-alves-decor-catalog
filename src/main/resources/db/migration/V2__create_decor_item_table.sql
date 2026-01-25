@@ -8,11 +8,11 @@ CREATE TABLE decor_item (
     unit TEXT,
     replacement_value NUMERIC(12,2),
     rental_price NUMERIC(12,2),
-    photos JSONB,
+    photos ${jsonType},
     active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
-CREATE INDEX ix_decor_item_name_ci ON decor_item ((lower(name)));
+CREATE INDEX ix_decor_item_name_ci ON decor_item (name);
 CREATE INDEX ix_decor_item_category ON decor_item (category);
