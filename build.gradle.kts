@@ -24,7 +24,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.flywaydb:flyway-core")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -38,6 +37,8 @@ dependencies {
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
+    testImplementation("org.flywaydb:flyway-core")
+    testImplementation("org.flywaydb:flyway-database-postgresql")
     testImplementation("com.h2database:h2")
     testImplementation("io.r2dbc:r2dbc-h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

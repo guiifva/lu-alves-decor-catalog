@@ -69,6 +69,151 @@ class DecorItemControllerIT @Autowired constructor(
     }
 
     @Test
+    fun `should create decor item successfully`() = runBlocking {
+        val request = mapOf(
+            "name" to "Mesa Rustica",
+            "category" to "TABLE",
+            "quantity_available" to 5,
+            "sku" to "MESA-001",
+            "active" to true,
+            "description" to "Mesa de madeira maciça",
+            "unit" to "UNIT",
+            "replacement_value" to 500.0,
+            "rental_price" to 150.0,
+            "photos" to listOf("https://example.com/mesa.jpg")
+        )
+
+        webTestClient.post()
+            .uri("/v1/items")
+            .bodyValue(request)
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody()
+            .jsonPath("$.id").isNotEmpty
+            .jsonPath("$.sku").isEqualTo("MESA-001")
+            .jsonPath("$.name").isEqualTo("Mesa Rustica")
+            .jsonPath("$.active").isEqualTo(true)
+    }
+
+    @Test
+    fun `should return 409 when creating item with duplicate sku`() = runBlocking {
+        // Arrange
+        val existingItem = DecorItem(
+            id = UUID.randomUUID(),
+            sku = "DUPLICATE-SKU",
+            name = "Original Item",
+            category = DecorItemCategory.OTHER,
+            description = null,
+            quantityAvailable = 1,
+            unit = null,
+            replacementValue = null,
+            rentalPrice = null,
+            photos = emptyList(),
+            active = true,
+            createdAt = OffsetDateTime.now(),
+            updatedAt = OffsetDateTime.now()
+        )
+        decorItemRepository.save(existingItem.toEntity())
+
+        val request = mapOf(
+            "name" to "New Item",
+            "category" to "TABLE",
+            "quantity_available" to 1,
+            "sku" to "DUPLICATE-SKU"
+        )
+
+        // Act & Assert
+        webTestClient.post()
+            .uri("/v1/items")
+            .bodyValue(request)
+            .exchange()
+            .expectStatus().isEqualTo(409)
+            .expectHeader().contentType("application/problem+json")
+            .expectBody()
+            .jsonPath("$.title").isEqualTo("SKU already exists")
+    }
+
+    @Test
+    fun `should list items with filters`() = runBlocking {
+        // Arrange
+        val item1 = DecorItem(
+            id = UUID.randomUUID(),
+            sku = "A-01",
+            name = "Mesa de Vidro",
+            category = DecorItemCategory.TABLE,
+            description = null,
+            quantityAvailable = 1,
+            unit = null,
+            replacementValue = null,
+            rentalPrice = null,
+            photos = emptyList(),
+            active = true,
+            createdAt = OffsetDateTime.now(),
+            updatedAt = OffsetDateTime.now()
+        )
+        val item2 = DecorItem(
+            id = UUID.randomUUID(),
+            sku = "B-01",
+            name = "Painel Redondo",
+            category = DecorItemCategory.PANEL,
+            description = null,
+            quantityAvailable = 1,
+            unit = null,
+            replacementValue = null,
+            rentalPrice = null,
+            photos = emptyList(),
+            active = true,
+            createdAt = OffsetDateTime.now(),
+            updatedAt = OffsetDateTime.now()
+        )
+        val item3 = DecorItem(
+            id = UUID.randomUUID(),
+            sku = "A-02",
+            name = "Mesa Infantil",
+            category = DecorItemCategory.TABLE,
+            description = null,
+            quantityAvailable = 1,
+            unit = null,
+            replacementValue = null,
+            rentalPrice = null,
+            photos = emptyList(),
+            active = false,
+            createdAt = OffsetDateTime.now(),
+            updatedAt = OffsetDateTime.now()
+        )
+        decorItemRepository.save(item1.toEntity())
+        decorItemRepository.save(item2.toEntity())
+        decorItemRepository.save(item3.toEntity())
+
+        // Test Filter by Name (contains)
+        webTestClient.get()
+            .uri("/v1/items?name=mesa")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.content.length()").isEqualTo(2)
+            .jsonPath("$.content[0].name").value<String> { it.contains("Mesa") }
+
+        // Test Filter by Category
+        webTestClient.get()
+            .uri("/v1/items?category=PANEL")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.content.length()").isEqualTo(1)
+            .jsonPath("$.content[0].name").isEqualTo("Painel Redondo")
+
+        // Test Filter by Active
+        webTestClient.get()
+            .uri("/v1/items?active=false")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.content.length()").isEqualTo(1)
+            .jsonPath("$.content[0].name").isEqualTo("Mesa Infantil")
+    }
+
+    @Test
     fun `should return not found problem when item does not exist`() {
         val id = UUID.randomUUID()
 

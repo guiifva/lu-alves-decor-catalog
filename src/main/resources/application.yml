@@ -5,10 +5,4 @@ spring:
     url: ${SPRING_R2DBC_URL:r2dbc:postgresql://127.0.0.1:5432/decor_manager}
     username: ${SPRING_R2DBC_USERNAME:user}
     password: ${SPRING_R2DBC_PASSWORD:password}
-  flyway:
-    url: ${SPRING_FLYWAY_URL:jdbc:postgresql://127.0.0.1:5432/decor_manager}
-    user: ${SPRING_FLYWAY_USER:user}
-    password: ${SPRING_FLYWAY_PASSWORD:password}
-    placeholders:
-      jsonType: JSONB
 

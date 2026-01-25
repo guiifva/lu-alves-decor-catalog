@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   db:
-    image: postgres:16
+    image: postgres:16.4
     container_name: decor-db
     environment:
       POSTGRES_DB: decor_manager
@@ -19,6 +19,21 @@ services:
       retries: 10
     restart: unless-stopped
 
+  flyway:
+    image: flyway/flyway:10
+    container_name: decor-flyway
+    command: -connectRetries=60 -baselineOnMigrate=true migrate
+    volumes:
+      - ./src/main/resources/db/migration:/flyway/sql
+    environment:
+      FLYWAY_URL: jdbc:postgresql://db:5432/decor_manager
+      FLYWAY_USER: user
+      FLYWAY_PASSWORD: password
+      FLYWAY_PLACEHOLDERS_JSONTYPE: JSONB
+    depends_on:
+      db:
+        condition: service_healthy
+
   app:
     build:
       context: .
@@ -30,12 +45,11 @@ services:
       SPRING_R2DBC_URL: r2dbc:postgresql://db:5432/decor_manager
       SPRING_R2DBC_USERNAME: user
       SPRING_R2DBC_PASSWORD: password
-      SPRING_FLYWAY_URL: jdbc:postgresql://db:5432/decor_manager
-      SPRING_FLYWAY_USER: user
-      SPRING_FLYWAY_PASSWORD: password
     depends_on:
       db:
         condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
     restart: unless-stopped
 
 volumes:

@@ -10,3 +10,4 @@ spring:
     placeholders:
       jsonType: JSON
 
+
