@@ -2,11 +2,13 @@ package nocta.lualvesdecorcatalog.controller
 
 import nocta.lualvesdecorcatalog.core.exception.DomainValidationException
 import nocta.lualvesdecorcatalog.core.exception.DuplicateResourceException
+import nocta.lualvesdecorcatalog.core.exception.ItemNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import java.net.URI
 
 @RestControllerAdvice
 class RestExceptionHandler {
@@ -25,5 +27,13 @@ class RestExceptionHandler {
         problem.title = "Conflict"
         problem.detail = exception.message
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem)
+    }
+
+    @ExceptionHandler(ItemNotFoundException::class)
+    fun handleItemNotFound(exception: ItemNotFoundException): ResponseEntity<ProblemDetail> {
+        val problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.message ?: "Item not found")
+        problem.title = "Item not found"
+        problem.type = URI.create("https://lu-alves-decor.com/errors/item-not-found")
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem)
     }
 }

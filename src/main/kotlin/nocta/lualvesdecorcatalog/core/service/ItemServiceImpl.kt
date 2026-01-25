@@ -5,12 +5,16 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import nocta.lualvesdecorcatalog.core.exception.DomainValidationException
 import nocta.lualvesdecorcatalog.core.exception.DuplicateResourceException
+import nocta.lualvesdecorcatalog.core.exception.ItemNotFoundException
 import nocta.lualvesdecorcatalog.core.item.CreateItemCommand
 import nocta.lualvesdecorcatalog.core.item.Item
+import nocta.lualvesdecorcatalog.core.item.ItemCategory
 import nocta.lualvesdecorcatalog.repository.ItemRepository
 import nocta.lualvesdecorcatalog.repository.mapper.toEntity
 import nocta.lualvesdecorcatalog.repository.mapper.toModel
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -45,5 +49,20 @@ class ItemServiceImpl(
         }
 
         return saved.toModel()
+    }
+
+    override suspend fun getById(id: UUID): Item {
+        return itemRepository.findById(id)?.toModel()
+            ?: throw ItemNotFoundException(id)
+    }
+
+    override suspend fun list(
+        name: String?,
+        category: ItemCategory?,
+        active: Boolean?,
+        pageable: Pageable
+    ): Page<Item> {
+        return itemRepository.findByFilters(name, category, active, pageable)
+            .map { it.toModel() }
     }
 }

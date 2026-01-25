@@ -1,35 +1,34 @@
 package nocta.lualvesdecorcatalog.repository
 
-import nocta.lualvesdecorcatalog.core.entity.DecorItemCategory
-import nocta.lualvesdecorcatalog.repository.entity.DecorItemEntity
+import kotlinx.coroutines.reactor.awaitSingle
+import nocta.lualvesdecorcatalog.core.item.ItemCategory
+import nocta.lualvesdecorcatalog.repository.entity.ItemEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingle
 
-interface DecorItemRepositoryCustom {
+interface ItemRepositoryCustom {
     suspend fun findByFilters(
         name: String?,
-        category: DecorItemCategory?,
+        category: ItemCategory?,
         active: Boolean?,
         pageable: Pageable
-    ): Page<DecorItemEntity>
+    ): Page<ItemEntity>
 }
 
-class DecorItemRepositoryCustomImpl(
+class ItemRepositoryCustomImpl(
     private val template: R2dbcEntityTemplate
-) : DecorItemRepositoryCustom {
+) : ItemRepositoryCustom {
 
     override suspend fun findByFilters(
         name: String?,
-        category: DecorItemCategory?,
+        category: ItemCategory?,
         active: Boolean?,
         pageable: Pageable
-    ): Page<DecorItemEntity> {
+    ): Page<ItemEntity> {
         var criteria = Criteria.empty()
 
         if (!name.isNullOrBlank()) {
@@ -44,13 +43,13 @@ class DecorItemRepositoryCustomImpl(
 
         val query = Query.query(criteria).with(pageable)
 
-        val list = template.select(DecorItemEntity::class.java)
+        val list = template.select(ItemEntity::class.java)
             .matching(query)
             .all()
             .collectList()
             .awaitSingle()
 
-        val count = template.select(DecorItemEntity::class.java)
+        val count = template.select(ItemEntity::class.java)
             .matching(Query.query(criteria))
             .count()
             .awaitSingle()
