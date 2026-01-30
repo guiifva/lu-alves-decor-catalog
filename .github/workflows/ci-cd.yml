@@ -11,8 +11,22 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      db_changed: ${{ steps.filter.outputs.db }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            db:
+              - 'src/main/resources/db/migration/**'
+
   build-and-test:
     name: Build and Test
+    needs: check-changes
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,6 +48,26 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew clean build
+
+  migrate-database:
+    name: Database Migration
+    needs: [check-changes, build-and-test]
+    if: needs.check-changes.outputs.db_changed == 'true'
+    runs-on: ubuntu-latest
+    environment: production # Requires 'Environment' setup in GitHub Repo Settings for manual approval
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Flyway Migrate
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/src/main/resources/db/migration:/flyway/sql \
+            flyway/flyway:latest \
+            -url="jdbc:postgresql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" \
+            -user="${{ secrets.DB_USER }}" \
+            -password="${{ secrets.DB_PASSWORD }}" \
+            migrate
 
   build-and-push-image:
     name: Build and Push Docker Image
