@@ -5,6 +5,13 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      force_migration:
+        description: 'Force run migration?'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   check-changes:
@@ -48,7 +55,7 @@ jobs:
   migrate-database:
     name: Database Migration
     needs: [check-changes, build-and-test]
-    if: needs.check-changes.outputs.db_changed == 'true'
+    if: needs.check-changes.outputs.db_changed == 'true' || github.event.inputs.force_migration == 'true'
     runs-on: ubuntu-latest
     environment: production # Requires 'Environment' setup in GitHub Repo Settings for manual approval
     steps:
