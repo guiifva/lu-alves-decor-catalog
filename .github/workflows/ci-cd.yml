@@ -5,14 +5,31 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  workflow_dispatch:
+    inputs:
+      force_migration:
+        description: 'Force run migration?'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      db_changed: ${{ steps.filter.outputs.db }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            db:
+              - 'src/main/resources/db/migration/**'
+
   build-and-test:
     name: Build and Test
+    needs: check-changes
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,38 +52,22 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build
 
-  build-and-push-image:
-    name: Build and Push Docker Image
-    needs: build-and-test
+  migrate-database:
+    name: Database Migration
+    needs: [check-changes, build-and-test]
+    if: needs.check-changes.outputs.db_changed == 'true' || github.event.inputs.force_migration == 'true'
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      contents: read
-      packages: write
+    environment: production # Requires 'Environment' setup in GitHub Repo Settings for manual approval
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'format("refs/heads/{0}", "main")' }}
-            type=sha,prefix=sha-
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+      - name: Flyway Migrate
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/src/main/resources/db/migration:/flyway/sql \
+            flyway/flyway:latest \
+            -url="jdbc:postgresql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" \
+            -user="${{ secrets.DB_USER }}" \
+            -password="${{ secrets.DB_PASSWORD }}" \
+            migrate
