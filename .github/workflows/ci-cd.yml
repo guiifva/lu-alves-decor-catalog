@@ -70,4 +70,5 @@ jobs:
             -url="jdbc:postgresql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" \
             -user="${{ secrets.DB_USER }}" \
             -password="${{ secrets.DB_PASSWORD }}" \
+            -placeholders.jsonType=JSONB \
             migrate
