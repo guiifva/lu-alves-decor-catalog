@@ -2,7 +2,7 @@ spring:
   application:
     name: lu-alves-decor-catalog
   r2dbc:
-    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://127.0.0.1:5432/decor_manager}
+    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://localhost:5432/decor-manager-catalog}
     username: ${SPRING_R2DBC_USERNAME:user}
     password: ${SPRING_R2DBC_PASSWORD:password}
 
