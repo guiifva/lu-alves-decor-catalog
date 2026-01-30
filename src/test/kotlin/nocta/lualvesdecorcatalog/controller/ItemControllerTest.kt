@@ -120,4 +120,48 @@ class ItemControllerTest {
             .jsonPath("$.title").isEqualTo("Conflict")
             .jsonPath("$.detail").isEqualTo("Item with sku 'SKU123' already exists.")
     }
+
+    @Test
+    fun `should return 200 and item when found`() {
+        val id = UUID.randomUUID()
+        val now = OffsetDateTime.now()
+        val item = Item(
+            id = id,
+            sku = "SKU123",
+            name = "Mesa Rustica",
+            category = ItemCategory.Table,
+            description = "Mesa de madeira",
+            quantityAvailable = 2,
+            unit = ItemUnit.UNIT,
+            replacementValue = BigDecimal("200.00"),
+            rentalPrice = BigDecimal("50.00"),
+            photos = listOf("https://cdn.example.com/items/mesa.jpg"),
+            active = true,
+            createdAt = now,
+            updatedAt = now
+        )
+
+        coEvery { itemService.getById(any()) } returns item
+
+        webTestClient.get().uri("/v1/items/{id}", id)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.id").isEqualTo(id.toString())
+            .jsonPath("$.name").isEqualTo("Mesa Rustica")
+    }
+
+    @Test
+    fun `should return 404 when item not found`() {
+        val id = UUID.randomUUID()
+
+        coEvery { itemService.getById(any()) } throws nocta.lualvesdecorcatalog.core.exception.ItemNotFoundException(id)
+
+        webTestClient.get().uri("/v1/items/{id}", id)
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody()
+            .jsonPath("$.title").isEqualTo("Item not found")
+            .jsonPath("$.detail").isEqualTo("Item with id $id was not found")
+    }
 }
