@@ -87,3 +87,29 @@ data class CreateItemCommand(
         updatedAt = now,
     )
 }
+
+data class UpdateItemCommand(
+    val sku: String?,
+    val name: String,
+    val category: ItemCategory,
+    val description: String?,
+    val quantityAvailable: Int,
+    val unit: ItemUnit?,
+    val replacementValue: BigDecimal?,
+    val rentalPrice: BigDecimal?,
+    val photos: List<String>,
+    val active: Boolean,
+)
+
+data class PatchItemCommand(
+    val sku: String?,
+    val name: String?,
+    val category: ItemCategory?,
+    val description: String?,
+    val quantityAvailable: Int?,
+    val unit: ItemUnit?,
+    val replacementValue: BigDecimal?,
+    val rentalPrice: BigDecimal?,
+    val photos: List<String>?,
+    val active: Boolean?,
+)

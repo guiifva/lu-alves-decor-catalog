@@ -9,6 +9,8 @@ import nocta.lualvesdecorcatalog.core.exception.ItemNotFoundException
 import nocta.lualvesdecorcatalog.core.item.CreateItemCommand
 import nocta.lualvesdecorcatalog.core.item.Item
 import nocta.lualvesdecorcatalog.core.item.ItemCategory
+import nocta.lualvesdecorcatalog.core.item.PatchItemCommand
+import nocta.lualvesdecorcatalog.core.item.UpdateItemCommand
 import nocta.lualvesdecorcatalog.repository.ItemRepository
 import nocta.lualvesdecorcatalog.repository.mapper.toEntity
 import nocta.lualvesdecorcatalog.repository.mapper.toModel
@@ -64,5 +66,69 @@ class ItemServiceImpl(
     ): Page<Item> {
         return itemRepository.findByFilters(name, category, active, pageable)
             .map { it.toModel() }
+    }
+
+    @Transactional
+    override suspend fun update(id: UUID, command: UpdateItemCommand): Item {
+        val existingItem = getById(id)
+
+        if (command.sku != null && command.sku != existingItem.sku && itemRepository.existsBySku(command.sku)) {
+            throw DuplicateResourceException("Item with sku '${command.sku}' already exists.")
+        }
+
+        val updatedItem = try {
+            existingItem.copy(
+                sku = command.sku,
+                name = command.name,
+                category = command.category,
+                description = command.description,
+                quantityAvailable = command.quantityAvailable,
+                unit = command.unit,
+                replacementValue = command.replacementValue,
+                rentalPrice = command.rentalPrice,
+                photos = command.photos,
+                active = command.active,
+                updatedAt = OffsetDateTime.now(clock)
+            )
+        } catch (ex: IllegalArgumentException) {
+            throw DomainValidationException(listOf(ex.message ?: "Invalid item data."))
+        }
+
+        return itemRepository.save(updatedItem.toEntity()).toModel()
+    }
+
+    @Transactional
+    override suspend fun patch(id: UUID, command: PatchItemCommand): Item {
+        val existingItem = getById(id)
+
+        if (command.sku != null && command.sku != existingItem.sku && itemRepository.existsBySku(command.sku)) {
+            throw DuplicateResourceException("Item with sku '${command.sku}' already exists.")
+        }
+
+        val updatedItem = try {
+            existingItem.copy(
+                sku = command.sku ?: existingItem.sku,
+                name = command.name ?: existingItem.name,
+                category = command.category ?: existingItem.category,
+                description = command.description ?: existingItem.description,
+                quantityAvailable = command.quantityAvailable ?: existingItem.quantityAvailable,
+                unit = command.unit ?: existingItem.unit,
+                replacementValue = command.replacementValue ?: existingItem.replacementValue,
+                rentalPrice = command.rentalPrice ?: existingItem.rentalPrice,
+                photos = command.photos ?: existingItem.photos,
+                active = command.active ?: existingItem.active,
+                updatedAt = OffsetDateTime.now(clock)
+            )
+        } catch (ex: IllegalArgumentException) {
+            throw DomainValidationException(listOf(ex.message ?: "Invalid item data."))
+        }
+
+        return itemRepository.save(updatedItem.toEntity()).toModel()
+    }
+
+    @Transactional
+    override suspend fun delete(id: UUID) {
+        val existingItem = getById(id)
+        itemRepository.deleteById(existingItem.id!!)
     }
 }

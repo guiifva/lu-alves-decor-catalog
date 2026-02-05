@@ -3,6 +3,7 @@ package nocta.lualvesdecorcatalog.controller
 import nocta.lualvesdecorcatalog.core.exception.DomainValidationException
 import nocta.lualvesdecorcatalog.core.exception.DuplicateResourceException
 import nocta.lualvesdecorcatalog.core.exception.ItemNotFoundException
+import nocta.lualvesdecorcatalog.core.exception.ThemeNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
@@ -34,6 +35,14 @@ class RestExceptionHandler {
         val problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.message ?: "Item not found")
         problem.title = "Item not found"
         problem.type = URI.create("https://lu-alves-decor.com/errors/item-not-found")
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem)
+    }
+
+    @ExceptionHandler(ThemeNotFoundException::class)
+    fun handleThemeNotFound(exception: ThemeNotFoundException): ResponseEntity<ProblemDetail> {
+        val problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.message ?: "Theme not found")
+        problem.title = "Theme not found"
+        problem.type = URI.create("https://lu-alves-decor.com/errors/theme-not-found")
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem)
     }
 }

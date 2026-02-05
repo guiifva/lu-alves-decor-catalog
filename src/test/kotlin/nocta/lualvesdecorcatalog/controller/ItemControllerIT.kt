@@ -215,6 +215,45 @@ class ItemControllerIT @Autowired constructor(
     }
 
     @Test
+    fun `should list items with pagination and sorting`() = runBlocking {
+        // Arrange
+        val items = (1..5).map {
+            Item(
+                id = UUID.randomUUID(),
+                sku = "SKU-$it",
+                name = "Item $it",
+                category = ItemCategory.Table,
+                description = null,
+                quantityAvailable = 1,
+                unit = null,
+                replacementValue = null,
+                rentalPrice = null,
+                photos = emptyList(),
+                active = true,
+                createdAt = OffsetDateTime.now(),
+                updatedAt = OffsetDateTime.now()
+            )
+        }
+        items.forEach { itemRepository.save(it.toEntity()) }
+
+        // Act & Assert
+        webTestClient.get()
+            .uri("/v1/items?page=0&size=2&sort=name,desc")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.content.length()").isEqualTo(2)
+            .jsonPath("$.content[0].name").isEqualTo("Item 5")
+            .jsonPath("$.content[1].name").isEqualTo("Item 4")
+            .jsonPath("$.page.number").isEqualTo(0)
+            .jsonPath("$.page.size").isEqualTo(2)
+            .jsonPath("$.page.totalElements").isEqualTo(5)
+            .jsonPath("$.page.totalPages").isEqualTo(3)
+            .jsonPath("$.sort[0].property").isEqualTo("name")
+            .jsonPath("$.sort[0].direction").isEqualTo("DESC")
+    }
+
+    @Test
     fun `should return not found problem when item does not exist`() {
         val id = UUID.randomUUID()
 
