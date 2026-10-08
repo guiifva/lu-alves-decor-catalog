@@ -6,3 +6,15 @@ spring:
     username: ${SPRING_R2DBC_USERNAME:user}
     password: ${SPRING_R2DBC_PASSWORD:password}
 
+# Sentry: error tracking only. Tracing stays off (no traces-sample-rate); traces go through the
+# OpenTelemetry Java agent. An empty SENTRY_DSN keeps the SDK disabled (local dev / tests).
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SENTRY_ENVIRONMENT:production}
+  release: ${SENTRY_RELEASE:${SOURCE_COMMIT:}}
+  send-default-pii: false
+  # Client disconnects are not application errors. ResponseStatusException (4xx) is already skipped
+  # by SentryWebExceptionHandler, and exceptions handled by RestExceptionHandler never reach it.
+  ignored-exceptions-for-type:
+    - reactor.netty.channel.AbortedException
+    - java.util.concurrent.CancellationException
