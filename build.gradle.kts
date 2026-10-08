@@ -1,5 +1,6 @@
 val springdocVersion: String by project
 val springMockkVersion: String by project
+val sentryVersion: String by project
 
 plugins {
 	kotlin("jvm") version "2.2.20"
@@ -33,6 +34,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:$springdocVersion")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:$sentryVersion")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
